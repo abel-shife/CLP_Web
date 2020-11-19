@@ -136,10 +136,10 @@ module.exports = {
 	async serviceCatagoryRegistration(req, res) {
 		const serviceSubCatagory =
 			req.body.serviceSubCatagory.charAt(0).toUpperCase() +
-			req.body.serviceSubCatagory.slice(1);
+			req.body.serviceSubCatagory.slice(1).toLowerCase();
 		const serviceCatagory =
 			req.body.serviceCatagory.charAt(0).toUpperCase() +
-			req.body.serviceCatagory.slice(1);
+			req.body.serviceCatagory.slice(1).toLowerCase();
 
 		const catagoryQuery = {
 			catagoryName: serviceCatagory,

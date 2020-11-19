@@ -66,7 +66,7 @@ export default {
 		return Api().post("addPurchasePointRules", purchaasePointInfo);
 	},
 	getPurchaseRules() {
-		return Api().post("getPurchaseRules");
+		return Api().get("getPurchaseRules");
 	},
 	updatePurchasePointRules(purchasePointUpdateInfo) {
 		return Api().post("updatePurchasePointRules", purchasePointUpdateInfo);
@@ -79,13 +79,31 @@ export default {
 		return Api().post("addOtherPointRules", otherRuleInfo);
 	},
 	getOtherRules() {
-		return Api().post("getOtherRules");
+		return Api().get("getOtherRules");
 	},
 	updateOtherPointRules(otherPointRuleUpdateInfo) {
 		return Api().post("updateOtherPointRules", otherPointRuleUpdateInfo);
 	},
 	deleteOtherPoint(otherPointId) {
 		return Api().post("deleteOtherPoint", otherPointId);
+	},
+
+	//reward
+	saveReward(rewardInfo) {
+		return Api().post("saveReward", rewardInfo);
+	},
+	getAllRewards() {
+		return Api().get("getAllRewards");
+	},
+	updateReward(rewardUpdateInfo) {
+		return Api().post("updateReward", rewardUpdateInfo);
+	},
+	deleteReward(rewardId) {
+		return Api().post("deleteReward", rewardId);
+	},
+	//level
+	saveLevel(levelInfo) {
+		return Api().post("saveLevel", levelInfo);
 	},
 
 	//Supper admin

@@ -51,7 +51,7 @@
             </template>
             <span>{{ toolTip }}</span>
           </v-tooltip>
-         <v-checkbox
+          <v-checkbox
             class="ml-10"
             v-model="isStayLoggedInChecked"
           ></v-checkbox>
@@ -96,17 +96,17 @@ export default {
     };
   },
   created() {
-    if (
-      this.$store.state.isAdminLoggedIn &&
-      this.$store.state.admin.actor == "supper"
-    ) {
-      this.$router.push({ name: "supperDashboard" });
-    } else if (
-      this.$store.state.isAdminLoggedIn &&
-      this.$store.state.admin.actor == "branch"
-    ) {
-      this.$router.push({ name: "adminDashboard" });
-    }
+    // if (
+    //   this.$store.state.isAdminLoggedIn &&
+    //   this.$store.state.admin.actor == "supper"
+    // ) {
+    //   this.$router.push({ name: "supperDashboard" });
+    // } else if (
+    //   this.$store.state.isAdminLoggedIn &&
+    //   this.$store.state.admin.actor == "branch"
+    // ) {
+    //   this.$router.push({ name: "adminDashboard" });
+    // }
   },
   methods: {
     showHidePassword() {

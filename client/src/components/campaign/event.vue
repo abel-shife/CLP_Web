@@ -224,7 +224,7 @@
                               label="Choose Level"
                               v-model="selectedLevel"
                               :items="levels"
-                              prepend-icon="book"
+                              prepend-icon="signal_cellular_alt"
                             ></v-select>
                           </v-flex>
 

@@ -4,23 +4,30 @@
       <p>
         <span class="headline">Levels/</span>
         <span class="grey--text">&nbsp;List of levels</span>
-        <br />
+
         <span
-          v-if="getAllCustomersError"
+          v-if="getAllLevelsError"
           class="ml-10 pl-10 red--text text-center"
-          >{{ getAllCustomersError }}</span
+        >
+          <br />{{ getAllLevelsError }}</span
+        >
+        <span
+          v-if="levelRegistrationSuccess"
+          class="ml-10 pl-10 green--text text-center"
+        >
+          <br />{{ levelRegistrationSuccess }}</span
         >
       </p>
-      <div class="text-center">
-        <v-btn text :loading="customerLoading" v-if="customerLoading">
+      <div>
+        <v-btn text :loading="levelLoading" v-if="levelLoading">
           <span>loading...</span>
         </v-btn>
         <v-data-table
-          v-if="!customerLoading"
+          v-if="!levelLoading"
           :search="search"
-          v-model="selectedCustomer"
+          v-model="selectedLevel"
           :headers="headers"
-          :items="allCustomers"
+          :items="allLevels"
           :single-select="singleSelect"
           item-key="levelName"
           show-select
@@ -35,41 +42,40 @@
                   class="pa-3"
                 ></v-switch>
               </v-flex>
-              <v-flex
-                xs12
-                md3
-                v-if="selectedCustomer.length > 1 && !singleSelect"
-              >
+              <v-flex xs12 md3 v-if="selectedLevel.length > 1 && !singleSelect">
                 <v-btn
                   text
-                  :loading="deleteCustomerLoading"
+                  :loading="deleteLevelLoading"
                   class="mt-5 grey lighten-4"
-                  @click="deleteCustomer(selectedCustomer)"
+                  @click="deleteLevel(selectedLevel)"
                 >
                   <span class="text-capitalize">
                     <v-icon class="red--text" left>delete</v-icon>Delete
-                    selected customers
+                    selected levels
                   </span>
                 </v-btn>
               </v-flex>
               <v-flex xs12 md3>
-                <v-dialog
-                  v-model="customerDialog"
-                  max-width="800px"
-                  v-if="customerDialog"
-                >
+                <v-dialog v-model="levelDialog" max-width="500px">
                   <template v-slot:activator="{ on }">
-                    <v-btn v-on="on" text class="ma-5 green pl-10 pr-10" dark>
+                    <v-btn
+                      v-on="on"
+                      text
+                      class="ma-5 green pl-10 pr-10"
+                      dark
+                      @click="addLevelClicked"
+                    >
+                      <span class="text-capitalize">Add level</span>
                     </v-btn>
                   </template>
-                  <v-card>
+                  <v-card class="pa-10">
                     <v-card-title>
-                      <span class="headline">{{ offerRegOrUpdateTitle }}</span>
+                      <span class="headline">{{ levelRegOrUpdateTitle }}</span>
                       <v-spacer></v-spacer>
                       <v-btn
                         text
-                        class="grey lighten-4 pl-10 pr-10 ml-6 mt-2"
-                        @click="offerDialog = false"
+                        class="grey lighten-4 pl-3 pr-3 ml-3 mt-2"
+                        @click="levelDialog = false"
                       >
                         <span class="text-capitalize">
                           <v-icon left class="red--text">close</v-icon>close
@@ -77,149 +83,65 @@
                       </v-btn>
                     </v-card-title>
                     <v-card-text>
-                      <p class="text-center red--text">
-                        {{ getAllServiceError }}
+                      <p class="red--text">
                         <span
-                          v-if="offerRegistrationError"
-                          class="ml-10 pl-10 red--text text-center"
-                          >{{ offerRegistrationError }}</span
+                          v-if="levelRegistrationError"
+                          class="ml-10 pl-10 red--text"
+                          >{{ levelRegistrationError }}</span
                         >
                       </p>
                       <v-form v-model="checkValidity">
                         <v-layout row wrap justify-space-around>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md12 class="pa-2">
                             <v-text-field
-                              v-model="offerTitle"
-                              :rules="offerTitleValidation"
-                              label="Offer Titel"
+                              v-model="levelName"
+                              :rules="levelNameValidation"
+                              label="Level Name"
                               prepend-icon="title"
                             >
                             </v-text-field>
+                            <br />
+                            <v-textarea
+                              auto-grow
+                              rows="1"
+                              row-height="10"
+                              outlined
+                              label="Level description"
+                              v-model="levelDescription"
+                              :rules="levelDescriptionValidation"
+                              prepend-icon="note"
+                            ></v-textarea>
                           </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-select
-                              denses
-                              placeholder="Select Level"
-                              v-model="selectedLevel"
-                              :items="levels"
-                              prepend-icon="signal_cellular_alt"
-                            ></v-select>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-select
-                              denses
-                              label="Choose service name"
-                              v-model="selectedServiceName"
-                              :items="allServiceNames"
-                              @change="getServicePrice"
-                              prepend-icon="book"
-                            ></v-select>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5>
                             <v-text-field
-                              v-model="servicePrice"
-                              label="Service price"
-                              prepend-icon="money"
-                              :disabled="true"
+                              v-model="minimumRange"
+                              label="Minimum range "
+                              type="number"
+                              min="0"
+                              prepend-icon="event"
                             >
                             </v-text-field>
                           </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5>
                             <v-text-field
-                              v-model="discountRate"
-                              label="Write discount rate(%) 0-100 %"
+                              v-model="maximumRange"
+                              label="Maximum range "
                               type="number"
                               min="0"
-                              max="100"
-                              prepend-icon="arrow_downward"
-                            >
-                            </v-text-field>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <p
-                              class="text-center mt-5 red--text"
-                              style="font-size: 20px"
-                              v-if="servicePrice"
-                            >
-                              Price after discount:
-                              {{
-                                servicePrice -
-                                (discountRate / 100) * servicePrice
-                              }}
-                            </p>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-menu
-                              v-model="startMenu"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="290px"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="startDate"
-                                  label="Start date"
-                                  prepend-icon="event"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                ></v-text-field>
-                              </template>
-                              <v-date-picker
-                                v-model="startDate"
-                                @input="startMenu = false"
-                                :allowed-dates="allowedDates"
-                              ></v-date-picker>
-                            </v-menu>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-menu
-                              v-model="endMenu"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="290px"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="endDate"
-                                  label="End date"
-                                  prepend-icon="event"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                ></v-text-field>
-                              </template>
-                              <v-date-picker
-                                v-model="endDate"
-                                @input="endMenu = false"
-                              ></v-date-picker>
-                            </v-menu>
-                          </v-flex>
-
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-text-field
-                              v-model="limitedNumberPeople"
-                              label="Limit number of peoples"
-                              type="number"
-                              min="0"
-                              prepend-icon="wc"
+                              prepend-icon="event"
                             >
                             </v-text-field>
                           </v-flex>
 
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md6 class="pa-2">
                             <v-btn
                               dark
                               text
-                              class="primary"
-                              @click="saveOffer"
-                              :loading="offerRegistrationLoading"
+                              class="primary pl-2 pr-2"
+                              @click="saveLevel"
+                              :loading="levelRegistrationLoading"
                             >
-                              <span class="text-capitalize">Save Offer</span>
+                              <span class="text-capitalize">Save Level</span>
                             </v-btn>
                           </v-flex>
                         </v-layout>
@@ -242,8 +164,8 @@
           <template v-slot:[`item.actions`]="{ item }">
             <div
               v-if="
-                allCustomers.indexOf(selectedCustomer[0]) ==
-                  allCustomers.indexOf(item) && singleSelect
+                allLevels.indexOf(selectedLevel[0]) ==
+                  allLevels.indexOf(item) && singleSelect
               "
             >
               <v-tooltip top>
@@ -252,11 +174,11 @@
                     v-on="on"
                     small
                     class="blue--text mr-2"
-                    @click="editCustomer(item)"
+                    @click="editLevel(item)"
                     >edit</v-icon
                   >
                 </template>
-                <span>Update customer</span>
+                <span>Update level</span>
               </v-tooltip>
 
               <v-tooltip top dark>
@@ -265,11 +187,11 @@
                     v-on="on"
                     small
                     class="red--text ml-2"
-                    @click="deleteCustomer(item)"
+                    @click="deleteLevel(item)"
                     >delete</v-icon
                   >
                 </template>
-                <span>Delete customer</span>
+                <span>Delete level</span>
               </v-tooltip>
             </div>
           </template>
@@ -286,15 +208,38 @@
 import apiService from "../../services/apiService";
 export default {
   data: () => ({
-    selectedCustomer: [],
-    allCustomers: [],
-    getAllCustomersError: "",
+    selectedLevel: [],
+    allLevels: [],
+    getAllLevelsError: "",
+    levelRegistrationSuccess: "",
+    levelRegistrationError: "",
     search: "",
-    deleteCustomerLoading: false,
-    customerLoading: false,
-    singleSelect: true,
-    customerDialog: false,
 
+    deleteLevelLoading: false,
+    levelRegistrationLoading: false,
+    levelLoading: false,
+    singleSelect: true,
+    levelDialog: false,
+    checkValidity: false,
+
+    levelRegOrUpdateTitle: "",
+    whatToDo: "",
+
+    levelName: "",
+    levelDescription: "",
+    minimumRange: "",
+    maximumRange: "",
+
+    levelNameValidation: [
+      (v) =>
+        /^[A-Za-z 0-9ሀ-ፐ]{2,32}/.test(v) ||
+        "Invalid level name, it contains A-Z, a-z, , 0-9, ሀ-ፐ and minimum 2 and maximum 32 characters",
+    ],
+    levelDescriptionValidation: [
+      (v) =>
+        /^[a-zA-Zሀ-ፐ .]{2,250}/.test(v) ||
+        "Invalide description, it contains a-z, A-Z,ሀ-ፐ, ,., with minumum 2 and maximum 250 characters.",
+    ],
     headers: [
       {
         text: "Level Name",
@@ -307,9 +252,14 @@ export default {
         value: "levelDescription",
       },
       {
-        text: "Range",
+        text: "Min Range",
 
-        value: "range",
+        value: "minimumRange",
+      },
+      {
+        text: "Max Range",
+
+        value: "maximumRange",
       },
       {
         text: "Customer At This Level",
@@ -325,7 +275,101 @@ export default {
   }),
 
   methods: {
-    async deleteCustomer(item) {
+    addLevelClicked() {
+      this.whatToDo = "add";
+      this.levelRegOrUpdateTitle = "Add Level";
+    },
+    async saveLevel() {
+      this.levelRegistrationSuccess = "";
+      this.levelRegistrationError = "";
+      if (this.checkValidity) {
+        if (
+          this.minimumRange > 0 &&
+          this.maximumRange > 0 &&
+          this.minimumRange <= this.maximumRange
+        ) {
+          if (this.whatToDo == "add") {
+            this.levelRegistrationLoading = true;
+            try {
+              const levelResponsee = await apiService.saveLevel({
+                levelName: this.levelName,
+                levelDescription: this.levelDescription,
+                maximumRange: this.maximumRange,
+                minimumRange: this.minimumRange,
+              });
+
+              this.allLevels.push(levelResponsee.data.level);
+              this.levelRegistrationSuccess = "Level registered successfully!";
+              this.levelRegistrationError = "";
+              this.levelRegistrationLoading = false;
+              this.levelDialog = false;
+            } catch (err) {
+              this.levelRegistrationLoading = false;
+              this.levelRegistrationSuccess = "";
+              if (err.response) {
+                if (err.response.data.error == 0) {
+                  this.$store.dispatch("setAdmin", "");
+                  this.$store.dispatch("setAdminToken", "");
+                  this.$store.dispatch("setSession", false);
+                  this.$router.push({ name: "adminLoginPage" });
+                } else this.levelRegistrationError = err.response.data.error;
+              } else
+                this.levelRegistrationError = "Connection to server failed";
+            }
+          } else if (this.whatToDo == "update") {
+            this.rewardRegistrationLoading = true;
+            try {
+              await apiService.updateReward({
+                rewardName: this.rewardName,
+                rewardDescription: this.rewardDescription,
+                minPoint: this.minPoint,
+                level: this.selectedLevel,
+                expiryDate: this.expiryDate,
+                rewardId: this.selectedRewardItem._id,
+              });
+
+              Object.assign(
+                this.allRewards[
+                  this.allRewards.indexOf(this.selectedRewardItem)
+                ],
+                {
+                  rewardName: this.rewardName,
+                  rewardDescription: this.rewardDescription,
+                  minPoint: this.minPoint,
+                  level: this.selectedLevel,
+                  expiryDate: this.expiryDate,
+                }
+              );
+              this.rewardRegisteringSuccess = "Reward updated successfully!";
+              this.rewardRegistrationError = "";
+              this.rewardRegistrationLoading = false;
+              this.rewardDialog = false;
+            } catch (err) {
+              this.rewardRegistrationLoading = false;
+              this.rewardRegisteringSuccess = "";
+              if (err.response) {
+                if (err.response.data.error == 0) {
+                  this.$store.dispatch("setAdmin", "");
+                  this.$store.dispatch("setAdminToken", "");
+                  this.$store.dispatch("setSession", false);
+                  this.$router.push({ name: "adminLoginPage" });
+                } else this.rewardRegistrationError = err.response.data.error;
+              } else
+                this.rewardRegistrationError = "Connection to server failed";
+            }
+          }
+        } else
+          this.levelRegistrationError =
+            "Minimum and Maximum ranges must be positive And Minimum range must be less than Maximum range";
+      } else
+        this.levelRegistrationError = "Please fill all the required fields";
+
+      setTimeout(() => {
+        this.levelRegistrationError = "";
+        this.levelRegistrationSuccess = "";
+      }, 10000);
+    },
+    async deleteLevel(item) {
       const deleteConfirmation = confirm(
         "Are you sure you want to delete this(these) offer(s) ?"
       );
@@ -333,47 +377,47 @@ export default {
         let count = 0;
         try {
           if (this.singleSelect) {
-            await apiService.deleteCustomer({
-              customerId: item._id,
+            await apiService.deleteLevel({
+              LevelId: item._id,
             });
-            this.allCustomers.splice(this.allCustomers.indexOf(item), 1);
-            this.selectedCustomer = [];
-            this.getAllCustomersError = "Customer deleted";
+            this.allLevels.splice(this.allLevels.indexOf(item), 1);
+            this.selectedLevel = [];
+            this.getAllLevelsError = "Level deleted";
           } else {
-            this.deleteCustomerLoading = true;
+            this.deleteLevelLoading = true;
             let i = 0;
             for (i = 0; i < item.length; i++) {
-              await apiService.deleteCustomer({
-                customerId: item[i]._id,
+              await apiService.deleteLevel({
+                levelId: item[i]._id,
               });
-              this.allCustomers.splice(this.allCustomers.indexOf(item[i]), 1);
+              this.allLevels.splice(this.allLevels.indexOf(item[i]), 1);
               count++;
             }
-            this.getAllCustomersError = count + " Customers deleted";
-            this.deleteCustomerLoading = false;
+            this.getAllLevelsError = count + " Levels deleted";
+            this.deleteLevelLoading = false;
 
-            this.selectedCustomer = [];
+            this.selectedLevel = [];
             count = 0;
           }
         } catch (err) {
-          this.deleteCustomerLoading = false;
+          this.deleteLevelLoading = false;
           if (err.response) {
             if (err.response.data.error == 0) {
               this.$store.dispatch("setAdmin", "");
               this.$store.dispatch("setAdminToken", "");
               this.$store.dispatch("setSession", false);
               this.$router.push({ name: "adminLoginPage" });
-            } else this.getAllCustomersError = err.response.data.error;
-          } else this.getAllCustomersError = "Connection to server  failed";
+            } else this.getAllLevelsError = err.response.data.error;
+          } else this.getAllLevelsError = "Connection to server  failed";
         }
       }
       setTimeout(() => {
-        this.getAllCustomersError = "";
+        this.getAllLevelsError = "";
       }, 5000);
     },
 
-    editCustomer(item) {
-      this.customerDialog = true;
+    editLevel(item) {
+      this.levelDialog = true;
     },
   },
   async created() {

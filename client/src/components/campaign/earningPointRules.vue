@@ -96,11 +96,6 @@
                           <v-layout row wrap class="pl-10 pr-10">
                             <v-flex xs12 md12>
                               <v-select
-                                :items="listOfChoice"
-                                label="Choose"
-                                v-model="selectedType"
-                              ></v-select>
-                              <v-select
                                 v-if="whatToDo == 'add'"
                                 :items="allServiceNames"
                                 label="Choose service"
@@ -358,7 +353,7 @@ import apiService from "../../services/apiService";
 export default {
   data: () => ({
     selectedService: "",
-    selectedType: "",
+    //  selectedType: "",
     allServiceNames: [],
     getAllServices: [],
     allPurchasePointRules: [],
@@ -397,7 +392,6 @@ export default {
     otherSelectedPointRules: [],
     otherSelectedItem: "",
 
-    listOfChoice: ["All product", "Selected Product"],
     listOfOtherRules: ["Sign Up", "Refer to Friend", "Share"],
     headers: [
       {

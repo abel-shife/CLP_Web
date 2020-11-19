@@ -19,3 +19,5 @@ require("./offerSchema");
 require("./branchSchema");
 require("./eventSchema");
 require("./otherPointRuleSchema");
+require("./rewardSchema");
+require("./levelSchema");

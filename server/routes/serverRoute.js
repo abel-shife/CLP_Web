@@ -8,6 +8,8 @@ const pointRuleController = require("../controller/pointRuleController");
 const supperAdminController = require("../controller/supperAdminController");
 const offerController = require("../controller/offerController");
 const eventController = require("../controller/eventController");
+const rewardController = require("../controller/rewardController");
+const levelController = require("../controller/levelController");
 
 module.exports = (app) => {
 	app.post("/adminRegistration", adminController.adminRegistration);
@@ -59,7 +61,7 @@ module.exports = (app) => {
 		isAuthenticated,
 		pointRuleController.addPurchasePointRules
 	);
-	app.post("/getPurchaseRules", pointRuleController.getPurchasePointRules);
+	app.get("/getPurchaseRules", pointRuleController.getPurchasePointRules);
 	app.post(
 		"/updatePurchasePointRules",
 		isAuthenticated,
@@ -75,7 +77,7 @@ module.exports = (app) => {
 		isAuthenticated,
 		pointRuleController.addOtherPointRules
 	);
-	app.post("/getOtherRules", pointRuleController.getOtherRules);
+	app.get("/getOtherRules", pointRuleController.getOtherRules);
 	app.post(
 		"/updateOtherPointRules",
 		isAuthenticated,
@@ -86,8 +88,17 @@ module.exports = (app) => {
 		isAuthenticated,
 		pointRuleController.deleteOtherPoint
 	);
-	//supper admin
 
+	//reward
+	app.post("/saveReward", isAuthenticated, rewardController.saveReward);
+	app.get("/getAllRewards", rewardController.getAllRewards);
+	app.post("/updateReward", isAuthenticated, rewardController.updateReward);
+	app.post("/deleteReward", isAuthenticated, rewardController.deleteReward);
+
+	//level
+	app.post("/saveLevel", levelController.saveLevel);
+
+	//supper admin
 	app.post(
 		"/saveBranch",
 		isAuthenticated,

@@ -3,13 +3,20 @@
     <div v-if="$store.state.isAdminLoggedIn" class="white pt-3 pa-10">
       <p>
         <span class="headline">Rewards/</span>
-        <span class="grey--text">&nbsp;List of rewards</span>
-        <br />
+        <span class="grey--text">&nbsp;List of rewards </span>
+      </p>
+      <p class="text-center">
         <span
           v-if="getAllRewardsError"
           class="ml-10 pl-10 red--text text-center"
-          >{{ getAllRewardsError }}</span
         >
+          {{ getAllRewardsError }} <br />
+        </span>
+        <span
+          v-if="rewardRegisteringSuccess"
+          class="ml-10 pl-10 green--text text-center"
+          ><br />{{ rewardRegisteringSuccess }} <br />
+        </span>
       </p>
       <div class="text-center">
         <v-btn text :loading="rewardLoading" v-if="rewardLoading">
@@ -22,7 +29,7 @@
           :headers="headers"
           :items="allRewards"
           :single-select="singleSelect"
-          item-key="name"
+          item-key="rewardName"
           show-select
           class="elevation-0"
         >
@@ -53,7 +60,7 @@
                 </v-btn>
               </v-flex>
               <v-flex xs12 md3>
-                <v-dialog v-model="rewardDialog" max-width="800px">
+                <v-dialog v-model="rewardDialog" max-width="600px">
                   <template v-slot:activator="{ on }">
                     <v-btn
                       v-on="on"
@@ -89,7 +96,7 @@
                       </p>
                       <v-form v-model="checkValidity">
                         <v-layout row wrap justify-space-around>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5 class="pa-2">
                             <v-text-field
                               v-model="rewardName"
                               :rules="rewardNameValidation"
@@ -98,7 +105,7 @@
                             >
                             </v-text-field>
                           </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5 class="pa-2">
                             <v-textarea
                               auto-grow
                               rows="1"
@@ -110,121 +117,45 @@
                               prepend-icon="note"
                             ></v-textarea>
                           </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5 class="pa-2">
+                            <v-text-field
+                              v-model="minPoint"
+                              label="Minimum Point"
+                              type="number"
+                              min="0"
+                              prepend-icon="event"
+                            >
+                            </v-text-field>
+                          </v-flex>
+                          <v-flex xs12 md5 class="pa-2">
                             <v-select
                               denses
-                              label="Choose service name"
-                              v-model="selectedServiceName"
-                              :items="allServiceNames"
-                              @change="getServicePrice"
-                              prepend-icon="book"
+                              label="Choose Level"
+                              v-model="selectedLevel"
+                              :items="levels"
+                              prepend-icon="signal_cellular_alt"
                             ></v-select>
                           </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5 class="pa-2">
                             <v-text-field
-                              v-model="servicePrice"
-                              label="Service price"
-                              prepend-icon="money"
-                              :disabled="true"
-                            >
-                            </v-text-field>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-text-field
-                              v-model="discountRate"
-                              label="Write discount rate(%) 0-100 %"
+                              v-model="expiryDate"
+                              label="Duration after reached"
                               type="number"
                               min="0"
-                              max="100"
-                              prepend-icon="arrow_downward"
-                            >
-                            </v-text-field>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <p
-                              class="text-center mt-5 red--text"
-                              style="font-size: 20px"
-                              v-if="servicePrice"
-                            >
-                              Price after discount:
-                              {{
-                                servicePrice -
-                                (discountRate / 100) * servicePrice
-                              }}
-                            </p>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-menu
-                              v-model="startMenu"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="290px"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="startDate"
-                                  label="Start date"
-                                  prepend-icon="event"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                ></v-text-field>
-                              </template>
-                              <v-date-picker
-                                v-model="startDate"
-                                @input="startMenu = false"
-                                :allowed-dates="allowedDates"
-                              ></v-date-picker>
-                            </v-menu>
-                          </v-flex>
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-menu
-                              v-model="endMenu"
-                              :close-on-content-click="false"
-                              :nudge-right="40"
-                              transition="scale-transition"
-                              offset-y
-                              min-width="290px"
-                            >
-                              <template v-slot:activator="{ on, attrs }">
-                                <v-text-field
-                                  v-model="endDate"
-                                  label="End date"
-                                  prepend-icon="event"
-                                  readonly
-                                  v-bind="attrs"
-                                  v-on="on"
-                                ></v-text-field>
-                              </template>
-                              <v-date-picker
-                                v-model="endDate"
-                                @input="endMenu = false"
-                              ></v-date-picker>
-                            </v-menu>
-                          </v-flex>
-
-                          <v-flex xs12 md4 class="pa-2">
-                            <v-text-field
-                              v-model="limitedNumberPeople"
-                              label="Limit number of peoples"
-                              type="number"
-                              min="0"
-                              prepend-icon="wc"
+                              prepend-icon="event"
                             >
                             </v-text-field>
                           </v-flex>
 
-                          <v-flex xs12 md4 class="pa-2">
+                          <v-flex xs12 md5 class="pa-2">
                             <v-btn
                               dark
                               text
                               class="primary"
-                              @click="saveOffer"
-                              :loading="offerRegistrationLoading"
+                              @click="saveReward"
+                              :loading="rewardRegistrationLoading"
                             >
-                              <span class="text-capitalize">Save Offer</span>
+                              <span class="text-capitalize">Save Reward</span>
                             </v-btn>
                           </v-flex>
                         </v-layout>
@@ -244,11 +175,17 @@
               </v-flex>
             </v-layout>
           </template>
+          <template v-slot:[`item.rewardDescription`]="{ item }">
+            <p class="d-inline-block text-truncate" style="max-width: 200px">
+              {{ item.rewardDescription }}
+            </p>
+          </template>
+
           <template v-slot:[`item.actions`]="{ item }">
             <div
               v-if="
-                allCustomers.indexOf(selectedCustomer[0]) ==
-                  allCustomers.indexOf(item) && singleSelect
+                allRewards.indexOf(selectedReward[0]) ==
+                  allRewards.indexOf(item) && singleSelect
               "
             >
               <v-tooltip top>
@@ -257,11 +194,11 @@
                     v-on="on"
                     small
                     class="blue--text mr-2"
-                    @click="editCustomer(item)"
+                    @click="editReward(item)"
                     >edit</v-icon
                   >
                 </template>
-                <span>Update customer</span>
+                <span>Update reward</span>
               </v-tooltip>
 
               <v-tooltip top dark>
@@ -270,11 +207,11 @@
                     v-on="on"
                     small
                     class="red--text ml-2"
-                    @click="deleteCustomer(item)"
+                    @click="deleteReward(item)"
                     >delete</v-icon
                   >
                 </template>
-                <span>Delete customer</span>
+                <span>Delete reward</span>
               </v-tooltip>
             </div>
           </template>
@@ -299,18 +236,26 @@ export default {
     rewardLoading: false,
     singleSelect: true,
     rewardDialog: false,
+    checkValidity: false,
+    rewardRegistrationLoading: false,
     rewardRegOrUpdateTitle: "",
     whatToDo: "",
     rewardRegistrationError: "",
+    rewardRegisteringSuccess: "",
+    selectedLevel: "",
+    selectedRewardItem: "",
 
     rewardName: "",
     rewardDescription: "",
+    minPoint: "",
+    expiryDate: "",
 
+    levels: ["Gold", "Bronze", "silver", "Diamend", "All Levels"],
     headers: [
       {
         text: " Name",
         align: "start",
-        value: "name",
+        value: "rewardName",
       },
       {
         text: "Description",
@@ -320,7 +265,7 @@ export default {
       {
         text: "Point",
 
-        value: "point",
+        value: "minPoint",
       },
       {
         text: "Level",
@@ -328,15 +273,11 @@ export default {
         value: "level",
       },
       {
-        text: "Expiry Date",
-
-        value: "expityDate",
+        text: "Expiry Date Duration in days",
+        align: "center",
+        value: "expiryDate",
       },
-      {
-        text: "Code",
 
-        value: "code",
-      },
       {
         text: "Actions",
 
@@ -356,9 +297,96 @@ export default {
   }),
 
   methods: {
+    async saveReward() {
+      this.rewardRegisteringSuccess = "";
+      this.rewardRegistrationError = "";
+      if (this.checkValidity) {
+        if (this.minPoint > 0 && this.expiryDate > 0) {
+          if (this.whatToDo == "add") {
+            this.rewardRegistrationLoading = true;
+            try {
+              const rewardResponsee = await apiService.saveReward({
+                rewardName: this.rewardName,
+                rewardDescription: this.rewardDescription,
+                minPoint: this.minPoint,
+                level: this.selectedLevel,
+                expiryDate: this.expiryDate,
+              });
+
+              this.allRewards.push(rewardResponsee.data.reward);
+              this.rewardRegisteringSuccess = "Reward registered successfully!";
+              this.rewardRegistrationError = "";
+              this.rewardRegistrationLoading = false;
+              this.rewardDialog = false;
+            } catch (err) {
+              this.rewardRegistrationLoading = false;
+              this.rewardRegisteringSuccess = "";
+              if (err.response) {
+                if (err.response.data.error == 0) {
+                  this.$store.dispatch("setAdmin", "");
+                  this.$store.dispatch("setAdminToken", "");
+                  this.$store.dispatch("setSession", false);
+                  this.$router.push({ name: "adminLoginPage" });
+                } else this.rewardRegistrationError = err.response.data.error;
+              } else
+                this.rewardRegistrationError = "Connection to server failed";
+            }
+          } else if (this.whatToDo == "update") {
+            this.rewardRegistrationLoading = true;
+            try {
+              await apiService.updateReward({
+                rewardName: this.rewardName,
+                rewardDescription: this.rewardDescription,
+                minPoint: this.minPoint,
+                level: this.selectedLevel,
+                expiryDate: this.expiryDate,
+                rewardId: this.selectedRewardItem._id,
+              });
+
+              Object.assign(
+                this.allRewards[
+                  this.allRewards.indexOf(this.selectedRewardItem)
+                ],
+                {
+                  rewardName: this.rewardName,
+                  rewardDescription: this.rewardDescription,
+                  minPoint: this.minPoint,
+                  level: this.selectedLevel,
+                  expiryDate: this.expiryDate,
+                }
+              );
+              this.rewardRegisteringSuccess = "Reward updated successfully!";
+              this.rewardRegistrationError = "";
+              this.rewardRegistrationLoading = false;
+              this.rewardDialog = false;
+            } catch (err) {
+              this.rewardRegistrationLoading = false;
+              this.rewardRegisteringSuccess = "";
+              if (err.response) {
+                if (err.response.data.error == 0) {
+                  this.$store.dispatch("setAdmin", "");
+                  this.$store.dispatch("setAdminToken", "");
+                  this.$store.dispatch("setSession", false);
+                  this.$router.push({ name: "adminLoginPage" });
+                } else this.rewardRegistrationError = err.response.data.error;
+              } else
+                this.rewardRegistrationError = "Connection to server failed";
+            }
+          }
+        } else
+          this.rewardRegistrationError = "Point and duration must be positive";
+      } else
+        this.rewardRegistrationError = "Please fill all the required fields";
+
+      setTimeout(() => {
+        this.rewardRegistrationError = "";
+        this.rewardRegisteringSuccess = "";
+      }, 5000);
+    },
+
     async deleteReward(item) {
       const deleteConfirmation = confirm(
-        "Are you sure you want to delete this(these) offer(s) ?"
+        "Are you sure you want to delete this(these) reward(s) ?"
       );
       if (deleteConfirmation) {
         let count = 0;
@@ -404,8 +432,18 @@ export default {
     },
 
     editReward(item) {
-      this.customerDialog = true;
+      this.rewardDialog = true;
+      this.whatToDo = "update";
+      this.rewardRegOrUpdateTitle = "Update reward";
+      this.selectedRewardItem = item;
+
+      this.rewardName = item.rewardName;
+      this.rewardDescription = item.rewardDescription;
+      this.minPoint = item.minPoint;
+      this.selectedLevel = item.level;
+      this.expiryDate = item.expiryDate;
     },
+
     addRewardClicked() {
       this.whatToDo = "add";
       this.rewardRegOrUpdateTitle = "Reward registration";
@@ -417,7 +455,7 @@ export default {
 
     try {
       const response = await apiService.getAllRewards();
-      this.customerLoading = false;
+      this.rewardLoading = false;
       this.allRewards = response.data.allRewards;
     } catch (error) {
       this.rewardLoading = false;

@@ -28,11 +28,9 @@ module.exports = {
 						error: "Admin already exist",
 					});
 				}
-				if (admin) {
-					const adminJson = admin.toJSON();
+				if (admin != "") {
 					return res.send({
-						admin: adminJson,
-						adminToken: jwtSignUser(adminJson),
+						admin: admin,
 					});
 				} else
 					return res.status(404).send({
