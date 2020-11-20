@@ -10,6 +10,7 @@ const offerController = require("../controller/offerController");
 const eventController = require("../controller/eventController");
 const rewardController = require("../controller/rewardController");
 const levelController = require("../controller/levelController");
+const clientController = require("../controller/clientController");
 
 module.exports = (app) => {
 	app.post("/adminRegistration", adminController.adminRegistration);
@@ -97,6 +98,12 @@ module.exports = (app) => {
 
 	//level
 	app.post("/saveLevel", levelController.saveLevel);
+
+	//customer
+	app.post("/registerClient", clientController.clientRegistration);
+	app.post("/clientLogin", clientController.clientLogin);
+	app.post("/uploadProfileImage", clientController.UploadProfileImage);
+	app.post("/getProfileImage", clientController.getProfileImage);
 
 	//supper admin
 	app.post(

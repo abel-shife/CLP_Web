@@ -116,7 +116,7 @@ module.exports = {
 						return res.status(403).send({
 							error: err,
 						});
-					if (serviceDeleteResult.ok == 1) {
+					if (serviceDeleteResult) {
 						return res.send({
 							serviceDeleteResult: serviceDeleteResult,
 						});

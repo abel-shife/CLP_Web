@@ -395,8 +395,12 @@ export default {
 
           this.loading = false;
           this.serviceRegistrationError = "";
-          this.serviceRegistrationSuccess =
-            "Service is registered successfully!";
+
+          if (this.isRegOrUpdate == "register") {
+            this.serviceRegistrationSuccess =
+              "Service registered successfully!";
+          } else
+            this.serviceRegistrationSuccess = "Service  updated successfully!";
           this.serviceDialog = false;
           window.scrollTo(0, 0);
           setTimeout(() => {

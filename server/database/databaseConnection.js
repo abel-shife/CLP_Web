@@ -21,3 +21,4 @@ require("./eventSchema");
 require("./otherPointRuleSchema");
 require("./rewardSchema");
 require("./levelSchema");
+require("./clientSchema");
