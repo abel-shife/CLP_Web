@@ -79,15 +79,6 @@ module.exports = {
 	},
 
 	async UploadProfileImage(req, res) {
-		// if (req.body.oldImage) {
-		// 	try {
-		// 		fs.unlinkSync("./server/profileImages/" + req.body.oldImage);
-		// 		console.log("successfully deleted");
-		// 	} catch (err) {
-		// 		// handle the error
-		// 		console.log(err);
-		// 	}
-		// }
 		var name = req.body.name;
 		var img = req.body.image;
 
@@ -98,16 +89,25 @@ module.exports = {
 		streamObj.push(imageBufferData);
 
 		streamObj.push(null);
-
+		var imm = Date.now() + ".jpg";
 		var image = streamObj.pipe(
-			fs.createWriteStream("./server/profileImages/" + name + ".jpg")
+			fs.createWriteStream("./server/profileImages/" + imm)
 		);
 		if (!image.errorEmitted) {
+			if (req.body.oldImage) {
+				try {
+					fs.unlinkSync("./server/profileImages/" + req.body.oldImage);
+					console.log("successfully deleted");
+				} catch (err) {
+					// handle the error
+					console.log(err);
+				}
+			}
 			const clientPhone = {
 				phoneNumber: name,
 			};
 			const clientImage = {
-				profileImage: name + ".jpg",
+				profileImage: imm,
 			};
 
 			try {
